@@ -1,0 +1,84 @@
+body{
+	color: #666;
+	background-color: #EDF4FA;
+}
+
+a{
+	color: #06c;
+	background-color: transparent;
+}
+
+a:hover{
+	color: #319AF8;
+	background-color: transparent;
+}
+
+#connect-canvas{
+	background: #DEF0F0 -webkit-gradient(linear, left top, left bottom, from(rgba(0,0,0,0.2)), to(rgba(255,255,255,0.7)), color-stop(1%, rgba(255,255,255,0)));
+}
+
+nav{
+	background: #DCE6F4 -webkit-gradient(linear, left top, left bottom, from(rgba(255,255,255,0.8)), to(rgba(255,255,255,0.2)), color-stop(50%, rgba(255,255,255,0.5)), color-stop(51%, rgba(255,255,255,0)));
+	outline: 1px solid rgba(255,255,255,0.5);
+	outline-offset: -1px;
+	padding: 4px;
+}
+
+nav ul li a{
+	color: #1E395B;
+	background-color: transparent;
+	text-shadow: 0px 0px 5px #fff;
+	-webkit-transition-duration: .33s;
+	-webkit-transition-property: color, background;
+	text-shadow: 0 1px 1px rgba(255,255,255,0.5);
+	border: 1px solid transparent;
+}
+
+nav ul li a:hover{
+	color: #1E395B;
+	background-color: rgba(255,255,255,0.5);
+	border: 1px solid rgba(160,175,195,0.5);
+}
+
+nav ul li a:active,
+nav ul li.selected a,
+nav ul li.selected a:hover{
+	color: #1E395B;
+	background-color: rgba(160,175,195,0.3);
+	border: 1px solid rgba(160,175,195,0.5);
+}
+
+#canvas-sections{
+	border-top: 1px solid #A0AFC3;
+	background: -webkit-gradient(linear, left top, left bottom, from(rgba(0,0,0,0.2)), to(rgba(255,255,255,0)), color-stop(.6%, rgba(255,255,255,0)));
+}
+
+.status, .more{
+	-webkit-transition-duration: .33s;
+	-webkit-transition-property: color, background;
+	border: 1px solid #CDDAEA;
+	background: -webkit-gradient(linear, left top, left bottom, from(#fff), to(rgba(255,255,255,0)), color-stop(98%, rgba(255,255,255,0.5)));
+	outline-color: #7DA2CE;
+}
+
+.status .body{
+	color: #444;
+	background-color: transparent;
+}
+
+.status.unread{
+}
+
+.status.mention{
+	background-color: #90DEFF;
+}
+
+.status strong.screenname a,
+.status .body .metadata .time{
+	color: #969696;
+}
+
+.status strong.screenname a:hover,
+.status .body .metadata .time:hover{
+	color: #319AF8;
+}

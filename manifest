@@ -1,0 +1,24 @@
+#appname:Chidori
+#appid:com.cheeaun.chidori
+#publisher:Lim Chee Aun
+#image:default_app_logo.png
+#url:http://cheeaun.com/
+#guid:19c7cafd-a359-431d-aebb-dd9332f4f36b
+#desc:Chidori is a cool new app created by Lim Chee Aun
+runtime:0.3
+api:0.3
+tiapp:0.3
+tifilesystem:0.3
+tiplatform:0.3
+tiui:0.3
+javascript:0.3
+tianalytics:0.3
+python:0.3
+ruby:0.3
+tidesktop:0.3
+tigrowl:0.3
+timedia:0.3
+timonkey:0.3
+tinetwork:0.3
+tinotification:0.3
+tiprocess:0.3

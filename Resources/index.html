@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<link rel="stylesheet" href="assets/css/ca.css">
+<link rel="stylesheet" href="assets/css/app.css">
+<script src="assets/js/lib/mootools.js"></script>
+<script src="assets/js/lib/mootools-more.js"></script>
+<script src="assets/js/lib/mootools-more-more.js"></script>
+<script src="assets/js/lib/sha1.js"></script>
+<script src="assets/js/lib/oauth.js"></script>
+<script src="assets/js/lib/twitteroauth.js"></script>
+<script src="assets/js/app.js"></script>
+
+<div id="connect-canvas">
+	<section id="connect-steps" style="display: none;">
+		<p>Hi. Please follow these steps to continue.</p>
+		<ol>
+			<li><p><a href="#" id="authorize" target="ti:systembrowser">Grant me access to your Twitter.</a></p></li>
+			<li><p><a href="#" id="connect">After granted, you may connect now. :)</a></p></li>
+		</ol>
+	</section>
+</div>
+
+<div id="main-canvas" tabindex="0">
+	<nav>
+	<ul>
+		<li class="selected"><a href="#home">Home</a></li>
+		<li><a href="#mentions">Mentions</a></li>
+		<li><a href="#messages">Messages</a></li>
+		<li><a href="#favorites">Favorites</a></li>
+		<li><a href="#search">Search</a></li>
+	</ul>
+	</nav>
+	<div id="canvas-sections">
+		<section id="home" tabindex="0"></section>
+		<section id="mentions" tabindex="0"></section>
+		<section id="messages" tabindex="0"></section>
+		<section id="favorites" tabindex="0"></section>
+		<section id="search" tabindex="0"></section>
+	</div>
+</div>
+
+<span id="loader"></span>
