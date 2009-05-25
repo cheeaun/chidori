@@ -1,0 +1,101 @@
+body{
+	color: #666;
+	background-color: #d2d2d2;
+	font-size: 90%;
+}
+
+a{
+	color: #0066d1;
+	background-color: transparent;
+	-webkit-transition-duration: .33s;
+	-webkit-transition-property: color, background;
+}
+
+a:hover{
+  color: #509ae4;
+	background-color: transparent;
+}
+
+nav{
+	background: #c1c1c1 -webkit-gradient(linear, left top, left bottom, from(rgba(255,255,255,0.6)), to(rgba(255,255,255,0)));
+	padding: 5px;
+}
+
+nav ul li a{
+	color: #272727;
+	background-color: transparent;
+	text-shadow: 0 1px 1px rgba(255,255,255,0.9);
+	-webkit-border-radius: .9em;
+	font-weight: bold;
+	padding: 1px 6px;
+}
+
+nav ul li a:hover{
+	color: #fff;
+	background-color: #888;
+	text-shadow: 0 1px 1px rgba(0,0,0,0.5);
+}
+
+nav ul li a:active,
+nav ul li.selected a,
+nav ul li.selected a:hover{
+	color: #fff;
+	background-color: #656565;
+	text-shadow: 0 1px 1px rgba(0,0,0,0.5);
+	-webkit-box-shadow: 0 1px 1px rgba(255,255,255,0.5);
+}
+
+#canvas-sections{
+	top: 29px;
+	border-top: 1px solid #5f5f5f;
+	background: -webkit-gradient(linear, left top, left bottom, from(rgba(0,0,0,0.2)), to(rgba(255,255,255,0)), color-stop(.6%, rgba(255,255,255,0)));
+}
+
+.status, .more{
+	-webkit-transition-duration: .33s;
+	-webkit-transition-property: color, background;
+	border: 1px solid;
+	border-color: #b6b6b6 #a3a3a3 #7f7f7f;
+	background: #f1f1f1 -webkit-gradient(linear, left top, left bottom, from(#fff), to(#fff), color-stop(90%, rgba(255,255,255,0)));
+	outline-color: #5e9fe0;
+	outline-offset: -2px;
+	-webkit-box-shadow: 0 1px 0 rgba(0,0,0,0.1);
+	font-size: 90%;
+}
+
+.status.small{
+  background-color: transparent;
+}
+
+.more{
+  border-bottom: 0;
+}
+
+.status .avatar{
+  -webkit-box-shadow: 0 1px 1px rgba(0,0,0,0.5);
+}
+
+.status .body{
+	color: #444;
+	background-color: transparent;
+}
+.status.small .body{
+	font-size: 1.1em;
+}
+
+.status.unread{
+}
+
+.status.mention{
+	background-color: #bbe2ff;
+}
+
+.status strong.screenname a,
+.status .body .metadata .time{
+	color: #969696;
+}
+
+.status strong.screenname a:hover,
+.status .body .metadata .time:hover{
+  color: #509ae4;
+}
