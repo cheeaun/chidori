@@ -205,7 +205,8 @@ var App = {
 			elem.toggleReveal();
 			// Toggle also the 'next' statuses
 			var elemNext = elem.getAllNext('.status');
-			if (elemNext.length) elemNext.toggleReveal();
+			if (!elemNext.length) return;
+			(el.hasClass('selected')) ? elemNext.reveal() : elemNext.dissolve();
 			return;
 		}
 		
@@ -296,24 +297,29 @@ var App = {
 		sections.addEvent('keydown', function(e){
 			var keys = ['up', 'down', 'space'];
 			if (!keys.contains(e.key)) return;
-			e.stop();
 			var inViews = this.getElements('.status:inView');
 			var focusedStatus = inViews.filter('.focus');
 			switch (e.key){
 				case 'up':
 					if (focusedStatus.length && focusedStatus[0]){
 						var prev = focusedStatus.getPrevious('.status');
-						if (prev.length && prev[0]) prev[0].focus();
+						if (!prev.length) return;
+						prev[0].focus();
+						e.stop();
 					} else {
 						inViews.getLast().focus();
+						e.stop();
 					}
 					break;
 				case 'down':
 					if (focusedStatus.length && focusedStatus[0]){
 						var next = focusedStatus.getNext('.status');
-						if (next.length && next[0]) next[0].focus();
+						if (!next.length) return;
+						next[0].focus();
+						e.stop();
 					} else {
 						inViews[0].focus();
+						e.stop();
 					}
 					break;
 			}
@@ -324,8 +330,10 @@ var App = {
 		var themeDir = 'assets/css/themes/';
 		var theme = App.config.theme;
 		if (!theme){
+		  console.log(Titanium.Platform.name);
 			switch (Titanium.Platform.name){
 				case 'Windows NT': theme = 'windows-vista'; break;
+				case 'Darwin': theme = 'mac-aqua'; break;
 			}
 		}
 		if (theme) new Asset.css(themeDir + theme + '.css', { id: theme });
@@ -345,7 +353,7 @@ var App = {
 		var stored = App.data.statuses[status.id];
 		if (!stored) App.data.statuses[status.id] = status;
 		
-		var mention = new RegExp('\B@' + App.data.credentials.screen_name + '\b', 'ig').test(status.text);
+		var mention = new RegExp('\\B@' + App.data.credentials.screen_name + '\\b', 'ig').test(status.text);
 		status._text = App.statusIfy(status.text);
 		
 		status._screenname = status.user.screen_name;
