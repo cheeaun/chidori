@@ -6,6 +6,8 @@ body{
 a{
 	color: #06c;
 	background-color: transparent;
+	-webkit-transition-duration: .33s;
+	-webkit-transition-property: color, background;
 }
 
 a:hover{
@@ -27,9 +29,6 @@ nav{
 nav ul li a{
 	color: #1E395B;
 	background-color: transparent;
-	text-shadow: 0px 0px 5px #fff;
-	-webkit-transition-duration: .33s;
-	-webkit-transition-property: color, background;
 	text-shadow: 0 1px 1px rgba(255,255,255,0.5);
 	border: 1px solid transparent;
 }
