@@ -414,6 +414,7 @@ App.Home = {
 	tweetsLimit: 20,
 	
 	init: function(){
+		App.Home.twoaMethod = 'statuses/friends_timeline';
 		App.Home.section = $('home');
 		App.Home.since_id = null;
 		App.Home.request = null;
@@ -433,7 +434,7 @@ App.Home = {
 
 	load: function(){
 		var opts = {};
-		App.Home.request = App.twoa.initMethod('statuses/friends_timeline', {
+		App.Home.request = App.twoa.initMethod(App.Home.twoaMethod, {
 			data: opts,
 			onSuccess: function(data){
 				if (data.length){
@@ -452,7 +453,7 @@ App.Home = {
 	loadNew: function(){
 		var opts = {
 		};
-		App.Home.request = App.twoa.initMethod('statuses/friends_timeline', {
+		App.Home.request = App.twoa.initMethod(App.Home.twoaMethod, {
 			data: $extend(opts, {since_id: App.Home.since_id}),
 			onSuccess: function(data){
 				if (data.length){
@@ -475,7 +476,7 @@ App.Home = {
 			max_id: max_id,
 			count: 21 // 20 + 1 of the max id tweet
 		};
-		App.Home.request = App.twoa.initMethod('statuses/friends_timeline', {
+		App.Home.request = App.twoa.initMethod(App.Home.twoaMethod, {
 			data: opts,
 			onSuccess: function(data){
 				if (!data.length) return;
@@ -576,6 +577,7 @@ App.Mentions = {
 	tweetsLimit: 20,
 	
 	init: function(){
+		App.Mentions.twoaMethod = 'statuses/mentions';
 		App.Mentions.section = $('mentions');
 		App.Mentions.since_id = null;
 		App.Mentions.request = null;
@@ -595,7 +597,7 @@ App.Mentions = {
 
 	load: function(){
 		var opts = {};
-		App.Mentions.request = App.twoa.initMethod('statuses/mentions', {
+		App.Mentions.request = App.twoa.initMethod(App.Mentions.twoaMethod, {
 			data: opts,
 			onSuccess: function(data){
 				if (data.length){
@@ -614,7 +616,7 @@ App.Mentions = {
 	loadNew: function(){
 		var opts = {
 		};
-		App.Mentions.request = App.twoa.initMethod('statuses/mentions', {
+		App.Mentions.request = App.twoa.initMethod(App.Mentions.twoaMethod, {
 			data: $extend(opts, {since_id: App.Mentions.since_id}),
 			onSuccess: function(data){
 				if (data.length){
@@ -637,7 +639,7 @@ App.Mentions = {
 			max_id: max_id,
 			count: 21 // 20 + 1 of the max id tweet
 		};
-		App.Mentions.request = App.twoa.initMethod('statuses/mentions', {
+		App.Mentions.request = App.twoa.initMethod(App.Mentions.twoaMethod, {
 			data: opts,
 			onSuccess: function(data){
 				if (!data.length) return;
