@@ -152,8 +152,25 @@ li.status.small{
 	-webkit-background-size: 24px 24px;
 }
 
+#messages .status .recipient{
+	display: none;
+}
+
+#messages .sent .avatar{
+	width: 32px;
+	height: 32px;
+	-webkit-background-size: 32px 32px;
+}
+#messages .sent .recipient{
+	width: 24px;
+	height: 24px;
+	-webkit-background-size: 24px 24px;
+	display: block;
+	margin: 24px 0 0 -8px;
+}
+
 .status .body,
-.status strong.screenname,
+.status .front,
 .status .body .content,
 .status .body .metadata{
 	display: block;

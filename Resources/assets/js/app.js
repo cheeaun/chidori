@@ -365,7 +365,7 @@ var App = {
 		var html = '<a href="{_screennameURL}" class="avatar url screenname" style="background-image: url({_avatar})"></a>\
 			<span class="body">\
 				<span class="actions"></span>\
-				<strong class="screenname"><a href="{_screennameURL}" class="url screenname" title="{_name}">{_screenname}</a></strong>\
+				<span class="front"><strong class="screenname"><a href="{_screennameURL}" class="url screenname" title="{_name}">{_screenname}</a></strong></span>\
 				<span class="content">{_text}</span>\
 				<span class="metadata">\
 					<a href="{_screennameURL}/status/{id}" target="ti:systembrowser" class="url time external-url"><time title="{created_at}">{created_at}</time></a>\
@@ -382,6 +382,45 @@ var App = {
 		if (status.user.id != App.data.credentials.id && !stored) el.addClass('unread');
 		if (mention) el.addClass('mention');
 		if (mode) el.addClass(mode);
+		
+		return el;
+	},
+	
+	formatMessage: function(message){
+		message._text = App.statusIfy(message.text);
+		message._screenname = message.sender_screen_name;
+		message._screennameURL = 'http://twitter.com/' + message._screenname;
+		message._name = message.sender.name;
+		message._avatar = message.sender.profile_image_url.replace('https://', 'http://'); // HTTPS bug in Titanium win32
+
+		var isSelf = (message._screenname == App.data.credentials.screen_name);
+		
+		message._recipient_screenname = message.recipient_screen_name;
+		message._recipient_screennameURL = 'http://twitter.com/' + message._recipient_screenname;
+		message._recipient_name = message.recipient.name;
+		message._recipient_avatar = message.recipient.profile_image_url.replace('https://', 'http://');
+		
+		var html = '<a href="{_screennameURL}" class="avatar url screenname" style="background-image: url({_avatar})"></a>\
+			<a href="{_recipient_screennameURL}" class="avatar recipient url screenname" style="background-image: url({_recipient_avatar})"></a>\
+			<span class="body">\
+				<span class="actions"></span>\
+				<span class="front"><strong class="screenname"><a href="{_screennameURL}" class="url screenname" title="{_name}">{_screenname}</a></strong>\
+				&rarr; <a href="{_recipient_screennameURL}" class="url screenname" title="{_recipient_name}">{_recipient_screenname}</a></span>\
+				<span class="content">{text}</span>\
+				<span class="metadata">\
+					<a href="{_screennameURL}/status/{id}" class="url time external-url"><time title="{created_at}">{created_at}</time></a>\
+				</span>\
+			</span>'.substitute(message);
+		
+		var el = new Element('li', {
+			id: 'message-' + message.id,
+			'class': 'status message u-' + message._screenname,
+			html: html,
+			tabindex: 0
+		}).store('messageId', message.id);
+		
+		el.addClass('unread');
+		el.addClass((isSelf) ? 'sent' : 'received');
 		
 		return el;
 	},
@@ -404,6 +443,7 @@ var App = {
 		App.initTheme();
 		App.Home.init();
 		App.Mentions.init();
+		App.Messages.init();
 	}
 	
 };
@@ -508,7 +548,7 @@ App.Home = {
 		var ol = new Element('ol', {'class': 'main'}).inject(section);
 		
 		var tweets = data.map(function(tweet){
-			return App.formatStatus(tweet)
+			return App.formatStatus(tweet);
 		}).reverse();
 		tweets.each(function(el){
 			el.inject(ol, 'top');
@@ -543,7 +583,7 @@ App.Home = {
 		var scrollY = section.getScroll().y;
 		var y = ol.getStyle('padding-top').toInt();
 		var tweets = data.map(function(tweet){
-			return App.formatStatus(tweet)
+			return App.formatStatus(tweet);
 		}).reverse();
 		tweets.each(function(el){
 			el.inject(ol, 'top');
@@ -671,7 +711,7 @@ App.Mentions = {
 		var ol = new Element('ol', {'class': 'main'}).inject(section);
 		
 		var tweets = data.map(function(tweet){
-			return App.formatStatus(tweet)
+			return App.formatStatus(tweet);
 		}).reverse();
 		tweets.each(function(el){
 			el.inject(ol, 'top');
@@ -706,7 +746,7 @@ App.Mentions = {
 		var scrollY = section.getScroll().y;
 		var y = ol.getStyle('padding-top').toInt();
 		var tweets = data.map(function(tweet){
-			return App.formatStatus(tweet)
+			return App.formatStatus(tweet);
 		}).reverse();
 		tweets.each(function(el){
 			el.inject(ol, 'top');
@@ -730,6 +770,217 @@ App.Mentions = {
 		});
 		
 		App.Mentions.scroll.toElement(firstEl.getPrevious('.status'));
+	}
+	
+};
+
+App.Messages = {
+
+	pollRate: 5*60000, // 5 mins
+	tweetsLimit: 20,
+	
+	init: function(){
+		App.Messages.twoaMethod1 = 'direct_messages';
+		App.Messages.twoaMethod2 = 'direct_messages/sent';
+		App.Messages.section = $('messages');
+		App.Messages.received_since_id = null;
+		App.Messages.sent_since_id = null;
+		App.Messages.request = null;
+		App.Messages.isUnloadOld = true; // set to unload old tweets or not
+		App.Messages.scroll = new Fx.Scroll(App.Messages.section, {
+			transition: Fx.Transitions.Cubic.easeInOut,
+			duration: 'long',
+			onStart: function(){
+				App.freezeSUME = true;
+			},
+			onComplete: function(){
+				App.freezeSUME = false;
+			}
+		});
+		App.Messages.load();
+	},
+	
+	merge: function(received_data, sent_data){
+		return [].extend(received_data).extend(sent_data).sort(function(a, b){
+			var a_date = Date.parse(a.created_at);
+			var b_date = Date.parse(b.created_at);
+			return a_date.diff(b_date, 'second');
+		});
+	},
+
+	load: function(){
+		var opts = {};
+		App.Messages.request = App.twoa.initMethod(App.Messages.twoaMethod1, {
+			data: opts,
+			onSuccess: function(received_data){
+				if (App.Messages.sent_since_id) $extend(opts, {since_id: App.Messages.sent_since_id});
+				App.Messages.request = App.twoa.initMethod(App.Messages.twoaMethod2, {
+					data: opts,
+					onSuccess: function(sent_data){
+						if (received_data.length || sent_data.length){
+							App.Messages.render(received_data, sent_data);
+							App.Messages.received_since_id = received_data[0].id;
+							App.Messages.sent_since_id = sent_data[0].id;
+						}
+						App.setTimeDiffs();
+						App.Messages.loadNew.delay(App.Messages.pollRate);
+					},
+					onFailure: function(){
+						App.Messages.load.delay(App.Messages.pollRate/2);
+					}
+				});
+			},
+			onFailure: function(){
+				App.Messages.load.delay(App.Messages.pollRate/2);
+			}
+		});
+	},
+	
+	loadNew: function(){
+		var opts = {
+		};
+		App.Messages.request = App.twoa.initMethod(App.Messages.twoaMethod1, {
+			data: $extend(opts, {since_id: App.Messages.received_since_id}),
+			onSuccess: function(received_data){
+				App.Messages.request = App.twoa.initMethod(App.Messages.twoaMethod2, {
+					data: $extend(opts, {since_id: App.Messages.sent_since_id}),
+					onSuccess: function(sent_data){
+						if (received_data.length || sent_data.length){
+							App.Messages.renderNew(received_data, sent_data);
+							App.Messages.received_since_id = received_data[0].id;
+							App.Messages.sent_since_id = sent_data[0].id;
+						}
+						App.setTimeDiffs();
+						if (App.Messages.isUnloadOld) App.Messages.unloadOld();
+						App.Messages.loadNew.delay(App.Messages.pollRate);
+					},
+					onFailure: function(){
+						App.Messages.loadNew.delay(App.Messages.pollRate/2);
+					}
+				});
+			},
+			onFailure: function(){
+				App.Messages.loadNew.delay(App.Messages.pollRate/2);
+			}
+		});
+	},
+	
+	loadMore: function(received_max_id, sent_max_id){
+		App.Messages.isUnloadOld = false;
+		var opts = {
+			max_id: received_max_id,
+			count: 21 // 20 + 1 of the max id tweet
+		};
+		App.Messages.request = App.twoa.initMethod(App.Messages.twoaMethod1, {
+			data: opts,
+			onSuccess: function(received_data){
+				App.Messages.request = App.twoa.initMethod(App.Messages.twoaMethod2, {
+					data: $extend(opts, {max_id: sent_max_id}),
+					onSuccess: function(sent_data){
+						if (received_data.length || sent_data.length){
+							App.Messages.renderMore(received_data.slice(1), sent_data.slice(1)); // minus the max id tweet
+						}
+						App.setTimeDiffs();
+						App.Messages.isUnloadOld = true;
+						App.Messages.moreLink.fade('show');
+						App.Messages.moreLinkBusy = false;
+					},
+					onFailure: function(){
+						App.Messages.isUnloadOld = true;
+						App.Messages.moreLink.fade('in');
+					}
+				});
+			},
+			onFailure: function(){
+				App.Messages.isUnloadOld = true;
+				App.Messages.moreLink.fade('in');
+			}
+		});
+	},
+	
+	unloadOld: function(){
+		var statuses = App.Messages.section.getElements('ol.main>.status');
+		if (statuses.length <= 20) return;
+		var leftovers = new Elements(statuses.slice(20));
+		var leftInViews = leftovers.filter(':inView');
+		var els = (leftInViews.length) ? leftInViews.getLast().getAllNext('.status') : leftovers;
+		els.destroy();
+	},
+	
+	render: function(received_data, sent_data){
+		var section = App.Messages.section;
+		
+		var ol = new Element('ol', {'class': 'main'}).inject(section);
+		
+		var data = App.Messages.merge(received_data, sent_data);
+		
+		var messages = data.map(function(message){
+			return App.formatMessage(message)
+		}).reverse();
+		messages.each(function(el){
+			el.inject(ol, 'top');
+		});
+		
+		App.Messages.moreLinkBusy = false;
+		App.Messages.moreLink = new Element('a', {
+			'class': 'more',
+			href: '#',
+			text: 'more',
+			events: {
+				click: function(e){
+					e.stop();
+					if (App.Messages.moreLinkBusy) return;
+					App.Messages.moreLinkBusy = true;
+					App.Messages.moreLink.fade(0.4);
+					var received_max_id = section.getElement('ol.main>.status.received:last-child').retrieve('messageId');
+					var sent_max_id = section.getElement('ol.main>.status.sent:last-child').retrieve('messageId');
+					console.log(received_max_id);
+					console.log(sent_max_id);
+					App.Messages.loadMore(received_max_id, sent_max_id);
+				}
+			}
+		}).inject(ol, 'after');
+		
+//		App.Messages.scroll.toBottom();
+	},
+	
+	renderNew: function(received_data, sent_data){
+		var section = App.Messages.section;
+		
+		var ol = section.getElement('ol');
+		
+		var scrollY = section.getScroll().y;
+		var y = ol.getStyle('padding-top').toInt();
+		
+		var data = App.Messages.merge(received_data, sent_data);
+		
+		var messages = data.map(function(message){
+			return App.formatMessage(message);
+		}).reverse();
+		messages.each(function(el){
+			el.inject(ol, 'top');
+			y += el.getFullSize().y;
+		});
+		section.scrollTo(0, scrollY + y);
+		
+		if (scrollY == 0) App.Messages.scroll.toTop();
+	},
+	
+	renderMore: function(received_data, sent_data){
+		var section = App.Messages.section;
+		
+		var ol = section.getElement('ol');
+		
+		var firstEl = null;
+		
+		var data = App.Messages.merge(received_data, sent_data);
+		data.each(function(message){
+			var el = App.formatMessage(message);
+			el.inject(ol);
+			if (!firstEl) firstEl = el;
+		});
+		
+		App.Messages.scroll.toElement(firstEl.getPrevious('.status'));
 	}
 	
 };
