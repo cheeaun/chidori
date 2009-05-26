@@ -86,7 +86,7 @@ nav ul li.selected a:hover{
 .status.unread{
 }
 
-.status.mention{
+#home .status.mention{
 	background-color: #ddeefd;
 }
 

@@ -58,6 +58,7 @@ nav ul li.selected a:hover{
 	border: 1px solid #CDDAEA;
 	background: -webkit-gradient(linear, left top, left bottom, from(#fff), to(rgba(255,255,255,0)), color-stop(98%, rgba(255,255,255,0.5)));
 	outline-color: #7DA2CE;
+	outline-offset: -1px;
 }
 
 .status .body{
@@ -68,8 +69,8 @@ nav ul li.selected a:hover{
 .status.unread{
 }
 
-.status.mention{
-	background-color: #90DEFF;
+#home .status.mention{
+	background-color: #D3F2FF;
 }
 
 .status strong.screenname a,

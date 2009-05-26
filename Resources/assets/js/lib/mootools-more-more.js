@@ -1,8 +1,8 @@
-/*
-	Element.inView
-*/
-
 Element.implement({
+
+	/*
+		Element.inView, determine if element is in view or not.
+	*/
 
 	inView: function() {
 		var scroll = window.getScroll();
@@ -20,9 +20,33 @@ Element.implement({
 			(coords.bottom >= scroll.y && coords.bottom <= bottom) ||
 			(coords.top <= scroll.y && coords.bottom >= bottom)
 		);
+	},
+	
+	/*
+		Element.toggleReveal, the missing function in Fx.Reveal :)
+	*/
+	
+	toggleReveal: function(options){
+		this.get('reveal', options).toggle();
+		return this;
+	},
+	
+	/*
+		Element.getFullSize, combines getSize with margins.
+	*/
+	
+	getFullSize: function(){
+		return {
+			x: this.getSize().x + this.getStyle('margin-left').toInt() + this.getStyle('margin-right').toInt(),
+			y: this.getSize().y + this.getStyle('margin-top').toInt() + this.getStyle('margin-bottom').toInt()
+		};
 	}
 
 });
+
+/*
+	Selector pseudo for Element.inView
+*/
 
 Selectors.Pseudo.inView = function(){
 	return this.inView();
@@ -39,17 +63,4 @@ Request.implement({
 		return text.stripScripts(this.options.evalScripts);
 	}
 	
-});
-
-/*
-	Element.toggleReveal
-*/
-
-Element.implement({
-
-	toggleReveal: function(options){
-		this.get('reveal', options).toggle();
-		return this;
-	}
-
 });

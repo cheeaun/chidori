@@ -403,6 +403,7 @@ var App = {
 	load: function(){
 		App.initTheme();
 		App.Home.init();
+		App.Mentions.init();
 	}
 	
 };
@@ -545,7 +546,7 @@ App.Home = {
 		}).reverse();
 		tweets.each(function(el){
 			el.inject(ol, 'top');
-			y += el.getSize().y + el.getStyle('margin-top').toInt() + el.getStyle('margin-bottom').toInt();
+			y += el.getFullSize().y;
 		});
 		section.scrollTo(0, scrollY + y);
 		
@@ -565,6 +566,168 @@ App.Home = {
 		});
 		
 		App.Home.scroll.toElement(firstEl.getPrevious('.status'));
+	}
+	
+};
+
+App.Mentions = {
+
+	pollRate: 5*60000, // 5 mins
+	tweetsLimit: 20,
+	
+	init: function(){
+		App.Mentions.section = $('mentions');
+		App.Mentions.since_id = null;
+		App.Mentions.request = null;
+		App.Mentions.isUnloadOld = true; // set to unload old tweets or not
+		App.Mentions.scroll = new Fx.Scroll(App.Mentions.section, {
+			transition: Fx.Transitions.Cubic.easeInOut,
+			duration: 'long',
+			onStart: function(){
+				App.freezeSUME = true;
+			},
+			onComplete: function(){
+				App.freezeSUME = false;
+			}
+		});
+		App.Mentions.load();
+	},
+
+	load: function(){
+		var opts = {};
+		App.Mentions.request = App.twoa.initMethod('statuses/mentions', {
+			data: opts,
+			onSuccess: function(data){
+				if (data.length){
+					App.Mentions.render(data);
+					App.Mentions.since_id = data[0].id;
+				}
+				App.setTimeDiffs();
+				App.Mentions.loadNew.delay(App.Mentions.pollRate);
+			},
+			onFailure: function(){
+				App.Mentions.load.delay(App.Mentions.pollRate/2);
+			}
+		});
+	},
+	
+	loadNew: function(){
+		var opts = {
+		};
+		App.Mentions.request = App.twoa.initMethod('statuses/mentions', {
+			data: $extend(opts, {since_id: App.Mentions.since_id}),
+			onSuccess: function(data){
+				if (data.length){
+					App.Mentions.renderNew(data);
+					App.Mentions.since_id = data[0].id;
+				}
+				App.setTimeDiffs();
+				if (App.Mentions.isUnloadOld) App.Mentions.unloadOld();
+				App.Mentions.loadNew.delay(App.Mentions.pollRate);
+			},
+			onFailure: function(){
+				App.Mentions.loadNew.delay(App.Mentions.pollRate/2);
+			}
+		});
+	},
+	
+	loadMore: function(max_id){
+		App.Mentions.isUnloadOld = false;
+		var opts = {
+			max_id: max_id,
+			count: 21 // 20 + 1 of the max id tweet
+		};
+		App.Mentions.request = App.twoa.initMethod('statuses/mentions', {
+			data: opts,
+			onSuccess: function(data){
+				if (!data.length) return;
+				App.Mentions.renderMore(data.slice(1)); // minus the max id tweet
+				App.setTimeDiffs();
+				App.Mentions.isUnloadOld = true;
+				App.Mentions.moreLink.fade('show');
+				App.Mentions.moreLinkBusy = false;
+			},
+			onFailure: function(){
+				App.Mentions.isUnloadOld = true;
+				App.Mentions.moreLink.fade('in');
+			}
+		});
+	},
+	
+	unloadOld: function(){
+		var statuses = App.Mentions.section.getElements('ol.main>.status');
+		if (statuses.length <= 20) return;
+		var leftovers = new Elements(statuses.slice(20));
+		var leftInViews = leftovers.filter(':inView');
+		var els = (leftInViews.length) ? leftInViews.getLast().getAllNext('.status') : leftovers;
+		els.destroy();
+	},
+	
+	render: function(data){
+		var section = App.Mentions.section;
+		
+		var ol = new Element('ol', {'class': 'main'}).inject(section);
+		
+		var tweets = data.map(function(tweet){
+			return App.formatStatus(tweet)
+		}).reverse();
+		tweets.each(function(el){
+			el.inject(ol, 'top');
+		});
+		
+		App.Mentions.moreLinkBusy = false;
+		App.Mentions.moreLink = new Element('a', {
+			'class': 'more',
+			href: '#',
+			text: 'more',
+			events: {
+				click: function(e){
+					e.stop();
+					if (App.Mentions.moreLinkBusy) return;
+					App.Mentions.moreLinkBusy = true;
+					App.Mentions.moreLink.fade(0.4);
+					var max_id = section.getElement('ol.main>.status:last-child').retrieve('statusId');
+					console.log(max_id);
+					App.Mentions.loadMore(max_id);
+				}
+			}
+		}).inject(ol, 'after');
+		
+//		App.Mentions.scroll.toBottom();
+	},
+	
+	renderNew: function(data){
+		var section = App.Mentions.section;
+		
+		var ol = section.getElement('ol');
+		
+		var scrollY = section.getScroll().y;
+		var y = ol.getStyle('padding-top').toInt();
+		var tweets = data.map(function(tweet){
+			return App.formatStatus(tweet)
+		}).reverse();
+		tweets.each(function(el){
+			el.inject(ol, 'top');
+			y += el.getFullSize().y;
+		});
+		section.scrollTo(0, scrollY + y);
+		
+		if (scrollY == 0) App.Mentions.scroll.toTop();
+	},
+	
+	renderMore: function(data){
+		var section = App.Mentions.section;
+		
+		var ol = section.getElement('ol');
+		
+		var firstEl = null;
+		data.each(function(tweet){
+			var el = App.formatStatus(tweet);
+			el.inject(ol);
+			if (!firstEl) firstEl = el;
+		});
+		
+		App.Mentions.scroll.toElement(firstEl.getPrevious('.status'));
 	}
 	
 };
