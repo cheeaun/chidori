@@ -269,7 +269,7 @@ var App = {
 			if (App.freezeSUME) return;
 			if (delayScroll) return;
 			delayScroll = true;
-			(function(){ delayScroll = false; }).delay(50);
+			(function(){ delayScroll = false; }).delay(30);
 			if (!inCanvas) return;
 			if (moveBusy) return;
 			var unreads = this.getElements('li.unread:inView');
