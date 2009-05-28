@@ -406,7 +406,7 @@ var App = {
 				<span class="actions"></span>\
 				<span class="front"><strong class="screenname"><a href="{_screennameURL}" class="url screenname" title="{_name}">{_screenname}</a></strong>\
 				&rarr; <a href="{_recipient_screennameURL}" class="url screenname" title="{_recipient_name}">{_recipient_screenname}</a></span>\
-				<span class="content">{text}</span>\
+				<span class="content">{_text}</span>\
 				<span class="metadata">\
 					<a href="{_screennameURL}/status/{id}" class="url time external-url"><time title="{created_at}">{created_at}</time></a>\
 				</span>\
