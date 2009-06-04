@@ -370,7 +370,7 @@ var App = {
 		status._screenname = status.user.screen_name;
 		status._screennameURL = 'http://twitter.com/' + status._screenname;
 		status._name = status.user.name;
-		status._avatar = status.user.profile_image_url.replace('https://', 'http://'); // HTTPS bug in Titanium win32
+		status._avatar = 'http://twivatar.org/' + status._screenname;
 		status.inreply = (status.in_reply_to_status_id) ? '&rarr; ' + status.in_reply_to_screen_name : '';
 		
 		var html = '<a href="{_screennameURL}" class="avatar url screenname u-{_screenname}" style="background-image: url({_avatar})"></a>\
@@ -402,14 +402,14 @@ var App = {
 		message._screenname = message.sender_screen_name;
 		message._screennameURL = 'http://twitter.com/' + message._screenname;
 		message._name = message.sender.name;
-		message._avatar = message.sender.profile_image_url.replace('https://', 'http://'); // HTTPS bug in Titanium win32
+		message._avatar = 'http://twivatar.org/' + message._screenname;
 
 		var isSelf = (message._screenname == App.data.credentials.screen_name);
 		
 		message._recipient_screenname = message.recipient_screen_name;
 		message._recipient_screennameURL = 'http://twitter.com/' + message._recipient_screenname;
 		message._recipient_name = message.recipient.name;
-		message._recipient_avatar = message.recipient.profile_image_url.replace('https://', 'http://');
+		message._recipient_avatar = 'http://twivatar.org/' + message._recipient_screenname;
 		
 		var html = '<a href="{_screennameURL}" class="avatar url screenname u-{_screenname}" style="background-image: url({_avatar})"></a>\
 			<a href="{_recipient_screennameURL}" class="avatar recipient url screenname u-{_recipient_screenname}" style="background-image: url({_recipient_avatar})"></a>\
