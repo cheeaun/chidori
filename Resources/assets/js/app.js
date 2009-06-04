@@ -151,6 +151,7 @@ var App = {
 			click: function(e){
 				var el = e.target;
 				App.handleInReplies(e, el);
+				App.handleProfileLinks(e, el);
 			}
 			
 		});
@@ -326,6 +327,16 @@ var App = {
 		});
 	},
 	
+	handleProfileLinks: function(e, el){
+		if (el.tagName.toLowerCase() != 'a') return;
+		if (!el.hasClass('screenname')) return;
+		if (!!el.getProperty('target')) return; // specified target ti:systembrowser
+		
+		e.stop();
+		
+		// do stuff here.
+	},
+	
 	initTheme: function(){
 		var themeDir = 'assets/css/themes/';
 		var theme = App.config.theme;
@@ -344,7 +355,7 @@ var App = {
 			return '<a href="' + m + '" class="url external-url" target="ti:systembrowser" title="' + m + '">' + m + '</a>';
 		}).replace(/(^|\s+)\#([\w|-|\.]+)/g, '$1<a href="http://search.twitter.com/search?q=%23$2" class="url hashtag" target="ti:systembrowser">#$2</a>').replace(/\B@([_a-z0-9]{1,15})/ig, function(m){
 			var screenname = m.substring(1);
-			return '<a href="http://twitter.com/' + screenname + '" class="url screenname">' + m + '</a>';
+			return '<a href="http://twitter.com/' + screenname + '" class="url screenname u-' + m + '">' + m + '</a>';
 		});
 	},
 	
@@ -362,10 +373,10 @@ var App = {
 		status._avatar = status.user.profile_image_url.replace('https://', 'http://'); // HTTPS bug in Titanium win32
 		status.inreply = (status.in_reply_to_status_id) ? '&rarr; ' + status.in_reply_to_screen_name : '';
 		
-		var html = '<a href="{_screennameURL}" class="avatar url screenname" style="background-image: url({_avatar})"></a>\
+		var html = '<a href="{_screennameURL}" class="avatar url screenname u-{_screenname}" style="background-image: url({_avatar})"></a>\
 			<span class="body">\
 				<span class="actions"></span>\
-				<span class="front"><strong class="screenname"><a href="{_screennameURL}" class="url screenname" title="{_name}">{_screenname}</a></strong></span>\
+				<span class="front"><strong class="screenname"><a href="{_screennameURL}" class="url screenname u-{_screenname}" title="{_name}">{_screenname}</a></strong></span>\
 				<span class="content">{_text}</span>\
 				<span class="metadata">\
 					<a href="{_screennameURL}/status/{id}" target="ti:systembrowser" class="url time external-url"><time title="{created_at}">{created_at}</time></a>\
@@ -400,15 +411,15 @@ var App = {
 		message._recipient_name = message.recipient.name;
 		message._recipient_avatar = message.recipient.profile_image_url.replace('https://', 'http://');
 		
-		var html = '<a href="{_screennameURL}" class="avatar url screenname" style="background-image: url({_avatar})"></a>\
-			<a href="{_recipient_screennameURL}" class="avatar recipient url screenname" style="background-image: url({_recipient_avatar})"></a>\
+		var html = '<a href="{_screennameURL}" class="avatar url screenname u-{_screenname}" style="background-image: url({_avatar})"></a>\
+			<a href="{_recipient_screennameURL}" class="avatar recipient url screenname u-{_recipient_screenname}" style="background-image: url({_recipient_avatar})"></a>\
 			<span class="body">\
 				<span class="actions"></span>\
-				<span class="front"><strong class="screenname"><a href="{_screennameURL}" class="url screenname" title="{_name}">{_screenname}</a></strong>\
-				&rarr; <a href="{_recipient_screennameURL}" class="url screenname" title="{_recipient_name}">{_recipient_screenname}</a></span>\
+				<span class="front"><strong class="screenname"><a href="{_screennameURL}" class="url screenname u-{_screenname}" title="{_name}">{_screenname}</a></strong>\
+				&rarr; <a href="{_recipient_screennameURL}" class="url screenname u-{_recipient_screenname}" title="{_recipient_name}">{_recipient_screenname}</a></span>\
 				<span class="content">{_text}</span>\
 				<span class="metadata">\
-					<a href="{_screennameURL}/status/{id}" class="url time external-url"><time title="{created_at}">{created_at}</time></a>\
+					<time title="{created_at}">{created_at}</time>\
 				</span>\
 			</span>'.substitute(message);
 		
