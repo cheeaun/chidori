@@ -1,13 +1,7 @@
-var debug = 1;
-
-if (!console) console = {log: function(){}};
-if (!debug) console.log = function(){};
-
 var App = {
 	
 	consumerKey: 'wGLoNKCoLDxwZbbSKbUQ',
 	consumerSecret: 'OWHW029FgInLrkpFtvjzsneM7t4j4KaST5mNx2HVbjU',
-	configTable: 'config',
 	config: {
 		profile: 'default',
 		token: '',
@@ -20,40 +14,33 @@ var App = {
 	},
 	
 	init: function(){
-	
 		// Init the database
-		var db = App.db = openDatabase('app', '0.1', 'App Database', 200000);
+		var db = App.db = Titanium.Database.open('chidori');
 		if (!App.db) console.log('Database Failed.');
 		
 		// Get all config
-		db.transaction(function(tx){
-			tx.executeSql('SELECT * FROM ' + App.configTable + ' WHERE profile = ?', [App.config.profile], function(tx, results){
-				console.log('Database already created.');
-				var row = results.rows.item(0); // Just get first row
-				$extend(App.config, row);
-				App.initConnect();
-			}, function(tx, error){
-				var conf = [], confMark = [], confKey = [], confValue = [];
-				$each(App.config, function(val, key){
-					conf.push(key + ' TEXT');
-					confKey.push(key);
-					confValue.push(val);
-					confMark.push('?');
+		try {
+			var rs = db.execute('SELECT * FROM CONFIG WHERE profile = ?', App.config.profile);
+			console.log('Database already created.');
+			while (rs.isValidRow()){
+				$each(App.config, function(c){
+					App.config[c] = rs.fieldByName(c);
 				});
-				tx.executeSql('CREATE TABLE ' + App.configTable + ' (' + conf.join(',') + ')', [], function(tx){
-					console.log('Database created.');
-					tx.executeSql('INSERT INTO ' + App.configTable + ' (' + confKey.join(',') + ') VALUES (' + confMark.join(',') + ')', confValue, function(tx){
-						console.log('Database keys/values created.');
-						App.initConnect();
-					}, function(tx, error){
-						console.log('Database keys/values CANNOT be created.');
-					});
-				}, function(tx, error){
-					console.log('Database CANNOT be created.');
-				});
+				break;
+			}
+		} catch(e) {
+			var conf = [], confMark = [], confKey = [], confValue = [];
+			$each(App.config, function(val, key){
+				conf.push(key + ' TEXT');
+				confKey.push(key);
+				confValue.push(val);
+				confMark.push('?');
 			});
-		});
-		
+			db.execute('CREATE TABLE if not exists CONFIG (' + conf.join(',') + ')');
+			db.execute('INSERT INTO CONFIG (' + confKey.join(',') + ') VALUES (' + confMark.join(',') + ')', confValue);
+			console.log('Database created.');
+		}
+		App.initConnect();
 	},
 	
 	initConnect: function(){
