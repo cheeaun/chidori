@@ -60,7 +60,8 @@ var TwitterOAuth = new Class({
 	accessToken: function(options){
 		options = $merge({
 			onSuccess: function(){},
-			onFailure: function(){}
+			onFailure: function(){},
+			data: {}
 		}, options || {});
 
 		var header = this.prepareHeader('GET', this.options.rootURL + this.options.accessTokenPath, {
@@ -68,7 +69,7 @@ var TwitterOAuth = new Class({
 			consumerSecret: this.options.consumerSecret,
 			token: this.token,
 			tokenSecret: this.tokenSecret
-		});
+		}, options.data);
 		
 		return new Request({
 			url: header.path,

@@ -99,6 +99,7 @@ var App = {
 	
 		// Connect
 		var connectBusy = false;
+		App.connectInput = $('connect-pin-input');
 		App.connectLink = $('connect');
 		App.connectCanvas = $('connect-canvas');
 		App.connectLink.addEvent('click', function(e){
@@ -106,19 +107,24 @@ var App = {
 			if (connectBusy) return;
 			connectBusy = true;
 			
+			var pin = App.connectInput.get('value').trim();
+			if (!pin) return;
+			
 			App.twoa.accessToken({
+				data: {
+					oauth_verifier: pin
+				},
 				onSuccess: function(token, tokenSecret){
 					$extend(App.config, {
 						token: token,
 						tokenSecret: tokenSecret
 					});
-					App.db.transaction(function(tx){
-						tx.executeSql('UPDATE ' + App.configTable + ' SET token=?, tokenSecret=? WHERE profile = ?', [token, tokenSecret, App.config.profile], function(){
-							App.connectSteps.fade('out');
-							App.verifyCredentials();
-							connectBusy = false;
-						});
-					});
+					try {
+						App.db.execute('UPDATE CONFIG SET token=?, tokenSecret=? WHERE profile = ?', token, tokenSecret, App.config.profile);
+						App.connectSteps.fade('out');
+						App.verifyCredentials();
+						connectBusy = false;
+					} catch(e) {}
 				},
 				// If fail, means user denied access or didn't do anything at all.
 				onFailure: function(){
