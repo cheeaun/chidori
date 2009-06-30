@@ -1,15 +1,17 @@
 /* General */
 
-html,body{
+body{
 	cursor: default;
 	font: message-box;
 	-webkit-user-select: none;
-}
-
-body{
 	color: WindowText;
 	background-color: ThreeDFace;
 	padding: 0;
+}
+
+/* Titanium being too smart sometimes, so... */
+a, h1, h2, h3, h4, blockquote{
+	-webkit-user-select: none;
 }
 
 a:hover{
@@ -190,7 +192,8 @@ li.status.small{
 	background: transparent url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAYAAAAGCAYAAADgzO9IAAAACXBIWXMAAA7DAAAOwwHHb6hkAAAAUklEQVR4nGP8v4qBjYGHoZmBkSGagYGBieE/w2KGLwy1LFDBMgYYALF5gNT/7QzPgVwJBlTwjIkBBwBJLMEQ/c+whIXhM0M1Ay+YEws0/x/McgCgGxQSJaTwewAAAABJRU5ErkJggg==') no-repeat top right;
 }
 
-.status .body .content{
+.status .body .content,
+.status .body .content *{
 	cursor: auto;
 	-webkit-user-select: text;
 	word-wrap: break-word;
