@@ -23,8 +23,8 @@ var App = {
 			var rs = db.execute('SELECT * FROM CONFIG WHERE profile = ?', App.config.profile);
 			console.log('Database already created.');
 			while (rs.isValidRow()){
-				$each(App.config, function(c){
-					App.config[c] = rs.fieldByName(c);
+				$each(App.config, function(v, k){
+					App.config[k] = rs.fieldByName(k);
 				});
 				break;
 			}
@@ -164,20 +164,19 @@ var App = {
 	
 	handleNavLinks: function(){
 		App.currentSection = 'home';
+		App.canvasScroll = new Fx.Scroll(App.canvasSections, {
+			transition: Fx.Transitions.Cubic.easeInOut,
+			link: 'cancel',
+			wheelStops: false
+		});
 		
 		$$('nav li a').addEvent('click', function(e){
 			e.stop();
 			var elParent = this.getParent('li');
 			if (elParent.hasClass('selected')) return;
-			elParent.getParent().getChildren('.selected').removeClass('selected');
-			elParent.addClass('selected');
+			elParent.addClass('selected').getSiblings('.selected').removeClass('selected');
 			App.currentSection = this.get('href').split('#')[1];
-			var smoothScroll = App.canvasSections.retrieve('smoothScroll', new Fx.Scroll(App.canvasSections, {
-				transition: Fx.Transitions.Cubic.easeInOut,
-				link: 'cancel',
-				wheelStops: false
-			}));
-			smoothScroll.toElement(App.currentSection);
+			App.canvasScroll.toElement(App.currentSection);
 		});
 	},
 	
@@ -266,7 +265,7 @@ var App = {
 			(function(){ delayScroll = false; }).delay(30);
 			if (!inCanvas) return;
 			if (moveBusy) return;
-			var unreads = this.getElements('li.unread:inView');
+			var unreads = this.getElements('li.unread:viewable');
 			if (!unreads.length) return;
 			moveBusy = true;
 			(function(){
@@ -288,16 +287,16 @@ var App = {
 				if (el.hasClass('status')) el.removeClass('focus');
 			}, true);
 		});
+		var keys = ['up', 'down', 'space'];
 		sections.addEvent('keydown', function(e){
-			var keys = ['up', 'down', 'space'];
 			if (!keys.contains(e.key)) return;
-			var inViews = this.getElements('.status:inView');
+			var inViews = this.getElements('.status:viewable');
 			var focusedStatus = inViews.filter('.focus');
 			switch (e.key){
 				case 'up':
 					if (focusedStatus.length && focusedStatus[0]){
 						var prev = focusedStatus.getPrevious('.status');
-						if (!prev.length) return;
+						if (!prev.length || !prev[0]) return;
 						prev[0].focus();
 						e.stop();
 					} else {
@@ -308,7 +307,7 @@ var App = {
 				case 'down':
 					if (focusedStatus.length && focusedStatus[0]){
 						var next = focusedStatus.getNext('.status');
-						if (!next.length) return;
+						if (!next.length || !next[0]) return;
 						next[0].focus();
 						e.stop();
 					} else {
@@ -1143,4 +1142,10 @@ window.addEvent('domready', function(){
 	/*/
 	App.init();
 	//*/
+	
+	// debug
+	document.addEvent('keyup', function(e){
+		// F5
+		if (e.code == 116) document.location.reload();
+	});
 });
