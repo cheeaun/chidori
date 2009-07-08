@@ -5,7 +5,7 @@ body{
 	font: message-box;
 	-webkit-user-select: none;
 	color: WindowText;
-	background-color: ThreeDFace;
+	background-color: transparent;
 	padding: 0;
 }
 

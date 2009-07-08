@@ -1,7 +1,7 @@
 body{
 	color: #666;
-	background-color: #d2d2d2;
-	font-size: 90%;
+	background-color: transparent;
+	font-size: 75%;
 }
 
 a{
@@ -17,38 +17,40 @@ a:hover{
 }
 
 nav{
-	background: #c1c1c1 -webkit-gradient(linear, left top, left bottom, from(rgba(255,255,255,0.6)), to(rgba(255,255,255,0)));
+  background-color: transparent;
 	padding: 5px;
 }
 
 nav ul li a{
-	color: #272727;
+	color: #1e1e1e;
 	background-color: transparent;
-	text-shadow: 0 1px 1px rgba(255,255,255,0.9);
+	text-shadow: 0 1px 0 rgba(255,255,255,0.3);
 	-webkit-border-radius: .9em;
 	font-weight: bold;
-	padding: 1px 6px;
+	padding: 0 6px;
+	margin: 0;
+	-webkit-transition-duration: 0s;
 }
 
 nav ul li a:hover{
 	color: #fff;
-	background-color: #888;
-	text-shadow: 0 1px 1px rgba(0,0,0,0.5);
+	background-color: #626262;
+	text-shadow: 0 1px 1px rgba(0,0,0,0.3);
 }
 
 nav ul li a:active,
 nav ul li.selected a,
 nav ul li.selected a:hover{
 	color: #fff;
-	background-color: #656565;
+	background-color: #4d4d4d;
 	text-shadow: 0 1px 1px rgba(0,0,0,0.5);
 	-webkit-box-shadow: 0 1px 1px rgba(255,255,255,0.5);
 }
 
 #canvas-sections{
-	top: 29px;
+	top: 27px;
 	border-top: 1px solid #5f5f5f;
-	background: -webkit-gradient(linear, left top, left bottom, from(rgba(0,0,0,0.2)), to(rgba(255,255,255,0)), color-stop(.6%, rgba(255,255,255,0)));
+	background: ThreeDFace -webkit-gradient(linear, left top, left bottom, from(rgba(0,0,0,0.2)), to(rgba(255,255,255,0)), color-stop(.6%, rgba(255,255,255,0)));
 }
 
 .status, .more{
